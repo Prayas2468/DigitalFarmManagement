@@ -1,39 +1,30 @@
 # Supergreen
 
-ASP.NET Core MVC application for farm records, antimicrobial usage (AMU), maximum residue limits (MRL), withdrawal periods, medicine stock, and reports. Data is stored in Microsoft SQL Server through Entity Framework Core.
+ASP.NET Core MVC application for farm records, antimicrobial usage (AMU), maximum residue limits (MRL), withdrawal periods, medicine stock, and reports. Data is stored in SQLite through Entity Framework Core.
 
 ## What you need
 
 - Visual Studio 2022 (or later) with the **ASP.NET and web development** workload
 - The **.NET 10 SDK** (this project targets `net10.0`)
-- **SQL Server Express** or **SQL Server Express LocalDB**
+- SQLite (the database file is created automatically)
 
-This computer did not have LocalDB or a SQL Server service installed, so the database could not be created here. The migration file is already in `Data/Migrations`. The site creates the database and demo data the first time it starts, as long as the connection string can reach SQL Server.
+The migration file is already in `Data/Migrations`. The site creates the database and demo data the first time it starts.
 
 ## Connection string
 
-Open `appsettings.json`. The default expects LocalDB:
+Open `appsettings.json`. The default uses a local SQLite database file:
 
 ```json
-"DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=DigitalFarmManagement;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
+"DefaultConnection": "Data Source=digital-farm.db"
 ```
-
-If you installed SQL Server Express instead, use:
-
-```json
-"DefaultConnection": "Server=.\\SQLEXPRESS;Database=DigitalFarmManagement;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
-```
-
-Use your own server name if SQL Server is installed under a different instance.
 
 ## Run it in Visual Studio
 
-1. Install SQL Server Express or LocalDB if it is not already installed.
-2. Open `DigitalFarmManagement.csproj` in Visual Studio.
-3. Confirm the connection string in `appsettings.json`.
-4. Press **F5** (or choose the `https` profile and run).
-5. The first launch applies the migration and inserts demo farms, animals, medicines, treatments, residue tests, and alerts.
-6. Sign in with one of the demo accounts below.
+1. Open `DigitalFarmManagement.csproj` in Visual Studio.
+2. Confirm the SQLite connection string in `appsettings.json`.
+3. Press **F5** (or choose the `https` profile and run).
+4. The first launch creates the database and inserts demo farms, animals, medicines, treatments, residue tests, and alerts.
+5. Sign in with one of the demo accounts below.
 
 From a terminal in this folder you can also run:
 

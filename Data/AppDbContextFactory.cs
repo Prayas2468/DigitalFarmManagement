@@ -18,7 +18,7 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbCont
             .Build();
 
         var options = new DbContextOptionsBuilder<ApplicationDbContext>();
-        options.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+        options.UseSqlite(config.GetConnectionString("DefaultConnection"));
         return new ApplicationDbContext(options.Options);
     }
 }
