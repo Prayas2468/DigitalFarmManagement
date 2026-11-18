@@ -1,0 +1,43 @@
+@model Farm
+@{
+    ViewData["Title"] = Model.FarmName;
+}
+<div class="page-head">
+    <div>
+        <h1>@Model.FarmName</h1>
+        <p>Farm ID @Model.Id · @Model.FarmType · registered @Ui.When(Model.RegistrationDate)</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-light" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+        <a class="btn btn-forest" asp-controller="Livestock" asp-action="Create">Add livestock</a>
+    </div>
+</div>
+<div class="split">
+    <section class="panel">
+        <h2>Farm record</h2>
+        <p><strong>Farmer:</strong> @Model.FarmerName</p>
+        <p><strong>Location:</strong> @Model.Location</p>
+        <p><strong>Phone:</strong> @Model.ContactNumber</p>
+        <p><strong>Email:</strong> @Model.Email</p>
+        <p class="mb-0"><strong>Portal owner:</strong> @(Model.Owner?.FullName ?? "Not linked")</p>
+    </section>
+    <section class="panel">
+        <h2>Livestock on this farm</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead><tr><th>ID</th><th>Name</th><th>Species</th><th>Status</th></tr></thead>
+                <tbody>
+                @foreach (var animal in Model.Livestock.OrderBy(a => a.AnimalCode))
+                {
+                    <tr>
+                        <td><a asp-controller="Livestock" asp-action="Details" asp-route-id="@animal.Id">@animal.AnimalCode</a></td>
+                        <td>@animal.AnimalName</td>
+                        <td>@animal.Species</td>
+                        <td><span class="@Ui.Pill(animal.HealthStatus)">@animal.HealthStatus</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

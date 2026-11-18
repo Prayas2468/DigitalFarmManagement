@@ -1,0 +1,66 @@
+@model FarmIndexViewModel
+@{
+    ViewData["Title"] = "Farms";
+}
+<div class="page-head">
+    <div>
+        <h1>Farm management</h1>
+        <p>Farms you are allowed to see. A farmer sees only farms linked to their login.</p>
+    </div>
+    <a class="btn btn-forest" asp-action="Create"><i class="fa-solid fa-plus me-1"></i>Add farm</a>
+</div>
+<form method="get" class="filter-bar">
+    <input class="form-control" name="search" value="@Model.Search" placeholder="Search name, farmer, phone, email" />
+    <select class="form-select" name="location">
+        <option value="">All locations</option>
+        @foreach (var location in Model.Locations)
+        {
+            <option value="@location" selected="@(location == Model.Location)">@location</option>
+        }
+    </select>
+    <select class="form-select" name="farmType">
+        <option value="">All types</option>
+        @foreach (var type in FarmTypes.All)
+        {
+            <option value="@type" selected="@(type == Model.FarmType)">@type</option>
+        }
+    </select>
+    <select class="form-select" name="sort">
+        <option value="name" selected="@(Model.Sort is null or "name")">Sort by name</option>
+        <option value="location" selected="@(Model.Sort == "location")">Sort by location</option>
+        <option value="farmer" selected="@(Model.Sort == "farmer")">Sort by farmer</option>
+        <option value="date" selected="@(Model.Sort == "date")">Newest registration</option>
+    </select>
+    <button class="btn btn-outline-secondary" type="submit">Apply</button>
+</form>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>Farm</th><th>Farmer</th><th>Location</th><th>Type</th><th>Livestock</th><th>Registered</th><th></th></tr></thead>
+            <tbody>
+            @if (Model.Items.Count == 0)
+            {
+                <tr><td colspan="7"><div class="empty">No farms match these filters.</div></td></tr>
+            }
+            @foreach (var farm in Model.Items)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@farm.Id"><strong>@farm.FarmName</strong></a><div class="small text-muted">@farm.Email</div></td>
+                    <td>@farm.FarmerName<div class="small text-muted">@farm.ContactNumber</div></td>
+                    <td>@farm.Location</td>
+                    <td>@farm.FarmType</td>
+                    <td>@farm.LivestockCount</td>
+                    <td>@Ui.When(farm.RegistrationDate)</td>
+                    <td class="text-nowrap">
+                        <a class="btn btn-sm btn-light" asp-action="Edit" asp-route-id="@farm.Id">Edit</a>
+                        <form class="d-inline" asp-action="Delete" asp-route-id="@farm.Id" method="post" data-confirm="Delete @farm.FarmName? This cannot be undone.">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pager" model="Model.Pager" />
+</div>

@@ -1,0 +1,31 @@
+@model AntimicrobialTreatment
+@{
+    ViewData["Title"] = "Treatment " + Model.Id;
+}
+<div class="page-head">
+    <div>
+        <h1>Treatment @Model.Id</h1>
+        <p>@Model.Livestock.AnimalCode · @Model.Livestock.AnimalName · @Model.Livestock.Farm.FarmName</p>
+    </div>
+    <a class="btn btn-light" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+</div>
+<section class="panel">
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Medicine:</strong> @Model.MedicineName</p>
+            <p><strong>Category:</strong> @Model.MedicineCategory</p>
+            <p><strong>Active ingredient:</strong> @Model.ActiveIngredient</p>
+            <p><strong>Dose:</strong> @Ui.Qty(Model.Dosage) @Model.Unit via @Model.AdministrationRoute</p>
+            <p><strong>Batch:</strong> @Model.MedicineInventory.BatchNumber</p>
+        </div>
+        <div class="col-md-6">
+            <p><strong>Started:</strong> @Ui.When(Model.TreatmentStartDate)</p>
+            <p><strong>Ended:</strong> @Ui.When(Model.TreatmentEndDate)</p>
+            <p><strong>Withdrawal:</strong> @Model.WithdrawalPeriodDays days</p>
+            <p><strong>First day products may be sold:</strong> @Ui.When(Model.WithdrawalEndDate)</p>
+            <p><strong>Veterinarian:</strong> @Model.VeterinarianName</p>
+        </div>
+    </div>
+    <p><strong>Reason:</strong> @Model.ReasonForTreatment</p>
+    <p class="mb-0"><strong>Remarks:</strong> @(Model.Remarks ?? "None")</p>
+</section>

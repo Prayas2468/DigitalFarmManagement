@@ -1,0 +1,70 @@
+@model TreatmentIndexViewModel
+@{
+    ViewData["Title"] = "Antimicrobial usage";
+}
+<div class="page-head">
+    <div>
+        <h1>Antimicrobial usage</h1>
+        <p>@Model.ActiveAnimals animal(s) are still inside a treatment end date.</p>
+    </div>
+    <a class="btn btn-forest" asp-action="Create">Record treatment</a>
+</div>
+<div class="split mb-3">
+    <section class="panel">
+        <h2>Total usage</h2>
+        @if (Model.UsageTotals.Count == 0) { <div class="empty">No doses recorded yet.</div> }
+        @foreach (var total in Model.UsageTotals)
+        {
+            <div class="d-flex justify-content-between border-bottom py-2"><span>@total.Unit</span><strong>@Ui.Qty(total.Total)</strong></div>
+        }
+        <p class="small text-muted mt-2 mb-0">Totals stay inside one unit. Millilitres are not added to boluses.</p>
+    </section>
+    <section class="panel">
+        <h2>Frequently used medicines</h2>
+        @foreach (var row in Model.Frequent)
+        {
+            <div class="d-flex justify-content-between border-bottom py-2"><span>@row.Name</span><span>@row.Count treatments · @Ui.Qty(row.TotalDosage) @row.Unit</span></div>
+        }
+    </section>
+</div>
+<form method="get" class="filter-bar">
+    <input class="form-control" name="search" value="@Model.Search" placeholder="Medicine, ingredient, or veterinarian" />
+    <select class="form-select" name="animalId">
+        <option value="">All animals</option>
+        @foreach (var animal in Model.Animals)
+        {
+            <option value="@animal.Id" selected="@(animal.Id == Model.AnimalId)">@animal.Label</option>
+        }
+    </select>
+    <input class="form-control" type="date" name="from" value="@Model.From?.ToString("yyyy-MM-dd")" />
+    <input class="form-control" type="date" name="to" value="@Model.To?.ToString("yyyy-MM-dd")" />
+    <button class="btn btn-outline-secondary" type="submit">Filter</button>
+</form>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>Animal</th><th>Medicine</th><th>Dose</th><th>Dates</th><th>Eligible</th><th></th></tr></thead>
+            <tbody>
+            @if (Model.Items.Count == 0) { <tr><td colspan="6"><div class="empty">No treatments match these filters.</div></td></tr> }
+            @foreach (var row in Model.Items)
+            {
+                <tr>
+                    <td><a asp-controller="Livestock" asp-action="Details" asp-route-id="@row.LivestockId">@row.Livestock.AnimalCode</a><div class="small text-muted">@row.Livestock.AnimalName</div></td>
+                    <td>@row.MedicineName<div class="small text-muted">@row.ActiveIngredient</div></td>
+                    <td>@Ui.Qty(row.Dosage) @row.Unit<div class="small text-muted">@row.AdministrationRoute</div></td>
+                    <td>@Ui.When(row.TreatmentStartDate) – @Ui.When(row.TreatmentEndDate)</td>
+                    <td>@Ui.When(row.WithdrawalEndDate)</td>
+                    <td class="text-nowrap">
+                        <a class="btn btn-sm btn-light" asp-action="Details" asp-route-id="@row.Id">View</a>
+                        <a class="btn btn-sm btn-light" asp-action="Edit" asp-route-id="@row.Id">Edit</a>
+                        <form class="d-inline" asp-action="Delete" asp-route-id="@row.Id" method="post" data-confirm="Delete this treatment and return the dose to stock?">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pager" model="Model.Pager" />
+</div>

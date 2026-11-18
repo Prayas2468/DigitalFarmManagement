@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "Access denied";
+    Layout = "_AuthLayout";
+}
+<div class="auth-panel" style="min-height:100vh;">
+    <div class="auth-card text-center">
+        <h2>That page is for administrators</h2>
+        <p class="text-muted">MRL limits can be changed by an administrator. Farmers can still record tests, and the portal will use the limits already stored.</p>
+        <a class="btn btn-forest" asp-controller="Dashboard" asp-action="Index">Back to the dashboard</a>
+    </div>
+</div>

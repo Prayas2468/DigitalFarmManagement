@@ -1,0 +1,82 @@
+@model MedicineIndexViewModel
+@{
+    ViewData["Title"] = "Medicine inventory";
+}
+<div class="page-head">
+    <div>
+        <h1>Medicine inventory</h1>
+        <p>@Model.LowStock batch(es) at or below the low-stock line · @Model.Expired expired batch(es) still on the shelf</p>
+    </div>
+    <a class="btn btn-forest" asp-action="Create"><i class="fa-solid fa-plus me-1"></i>Add batch</a>
+</div>
+<form method="get" class="filter-bar">
+    <input class="form-control" name="search" value="@Model.Search" placeholder="Search name, ingredient, batch, manufacturer" />
+    <select class="form-select" name="category">
+        <option value="">All categories</option>
+        @foreach (var category in MedicineCategories.All)
+        {
+            if (category == Model.Category) { <option value="@category" selected>@category</option> }
+            else { <option value="@category">@category</option> }
+        }
+    </select>
+    <button class="btn btn-outline-secondary" type="submit">Apply</button>
+</form>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Medicine</th>
+                    <th>Category</th>
+                    <th>Batch</th>
+                    <th>On hand</th>
+                    <th>Withdrawal</th>
+                    <th>Expiry</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Items.Count == 0)
+            {
+                <tr><td colspan="8"><div class="empty">No batches match these filters.</div></td></tr>
+            }
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>
+                        <strong>@item.MedicineName</strong>
+                        <div class="small text-muted">@item.ActiveIngredient · @item.Manufacturer</div>
+                    </td>
+                    <td>@item.Category</td>
+                    <td>@item.BatchNumber</td>
+                    <td>@Ui.Qty(item.AvailableQuantity) @item.Unit</td>
+                    <td>@item.WithdrawalPeriodDays days</td>
+                    <td>@Ui.When(item.ExpiryDate)</td>
+                    <td>
+                        @if (item.IsExpired)
+                        {
+                            <span class="pill pill-bad">Expired</span>
+                        }
+                        else if (item.IsLow)
+                        {
+                            <span class="pill pill-wait">Low stock</span>
+                        }
+                        else
+                        {
+                            <span class="pill pill-ok">In stock</span>
+                        }
+                    </td>
+                    <td class="text-nowrap">
+                        <a class="btn btn-sm btn-light" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <form class="d-inline" asp-action="Delete" asp-route-id="@item.Id" method="post" data-confirm="Remove batch @item.BatchNumber? A batch already used in a treatment cannot be deleted.">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pager" model="Model.Pager" />
+</div>

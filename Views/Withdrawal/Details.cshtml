@@ -1,0 +1,74 @@
+@model WithdrawalDetailsViewModel
+@{
+    ViewData["Title"] = "Withdrawal — " + Model.Animal.AnimalCode;
+    var today = DateTime.Today;
+    var blocked = Model.Periods.Any(p => p.EligibleOn.Date > today);
+}
+<div class="page-head">
+    <div>
+        <h1>@Model.Animal.AnimalName</h1>
+        <p>@Model.Animal.AnimalCode · @Model.Animal.Species · @Model.Animal.Farm.FarmName</p>
+    </div>
+    <a class="btn btn-light" asp-action="Index">Back to list</a>
+</div>
+
+@if (blocked)
+{
+    <div class="alert alert-warning">A withdrawal period is still open. Milk, meat, or eggs from this animal cannot be marked eligible for sale until every hold has finished.</div>
+}
+
+<div class="split">
+    <section class="panel">
+        <div class="panel-head"><h2>Withdrawal records</h2></div>
+        @if (Model.Periods.Count == 0)
+        {
+            <div class="empty">This animal has no withdrawal records yet. A record is created when you save a treatment.</div>
+        }
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead><tr><th>Medicine</th><th>Hold ends</th><th>Days left</th><th>Products</th><th>Status</th></tr></thead>
+                <tbody>
+                @foreach (var row in Model.Periods)
+                {
+                    <tr>
+                        <td>@row.MedicineName</td>
+                        <td>@Ui.When(row.EligibleOn)</td>
+                        <td>@(row.RemainingDays < 0 ? 0 : row.RemainingDays)</td>
+                        <td>@row.AffectedProducts</td>
+                        <td><span class="@Ui.Pill(row.Status)">@row.Status</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section class="panel">
+        <div class="panel-head"><h2>Mark product eligible</h2></div>
+        <p class="text-muted">The server checks the withdrawal dates again. A button on this page cannot override an active hold.</p>
+        @foreach (var product in Model.Products)
+        {
+            var cleared = Model.Clearances.FirstOrDefault(c => c.ProductType == product);
+            <form asp-action="MarkEligible" method="post" class="d-flex justify-content-between align-items-center border rounded p-3 mb-2">
+                <div>
+                    <strong>@product</strong>
+                    <div class="small text-muted">
+                        @(cleared == null ? "Not cleared for sale" : "Last cleared " + Ui.When(cleared.ClearedOn))
+                    </div>
+                </div>
+                <input type="hidden" name="id" value="@Model.Animal.Id" />
+                <input type="hidden" name="product" value="@product" />
+                <button class="btn btn-forest btn-sm" type="submit">Mark eligible</button>
+            </form>
+        }
+        @if (Model.Clearances.Count > 0)
+        {
+            <h3 class="h6 mt-3">Clearance history</h3>
+            <ul class="mb-0">
+                @foreach (var row in Model.Clearances)
+                {
+                    <li>@row.ProductType on @Ui.When(row.ClearedOn)</li>
+                }
+            </ul>
+        }
+    </section>
+</div>

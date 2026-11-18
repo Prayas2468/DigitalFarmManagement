@@ -1,0 +1,84 @@
+@{
+    ViewData["Title"] = "Supergreen";
+    Layout = "_AuthLayout";
+}
+<div class="landing">
+    <div class="landing-shell">
+        <header class="landing-nav">
+            <a class="landing-brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark"><i class="fa-solid fa-leaf"></i></span>
+                Supergreen
+            </a>
+            <nav class="landing-links" aria-label="Main navigation">
+                <a class="active" asp-controller="Home" asp-action="Index">Home</a>
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <a href="#contact">Contact</a>
+            </nav>
+            <div class="landing-actions">
+                <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Sign in</a>
+                <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Get started</a>
+            </div>
+        </header>
+
+        <main class="landing-hero" id="about">
+            <span class="hero-kicker">A healthier way to manage your farm</span>
+            <span class="hero-orbit left" aria-hidden="true"><i class="fa-solid fa-wheat-awn"></i></span>
+            <span class="hero-orbit right" aria-hidden="true"><i class="fa-solid fa-cow"></i></span>
+            <h1 class="hero-wordmark">Supergreen</h1>
+            <div class="hero-foot">
+                <p class="hero-copy mb-0">Good care grows from good information. Keep your animals, treatments, medicine stock, and food-safety checks moving together.</p>
+                <p class="hero-note mb-0">Farm records, rooted in care<br />Built for everyday decisions</p>
+            </div>
+        </main>
+    </div>
+
+    <section class="landing-feature" id="features">
+        <div class="section-heading">
+            <h2>Grow with<br />confidence.</h2>
+            <p>One clear view of the details that keep your farm and herd moving forward.</p>
+        </div>
+        <div class="feature-grid">
+            <article class="feature-card">
+                <div class="feature-art" aria-hidden="true"><i class="fa-solid fa-cow"></i></div>
+                <div>
+                    <h3>Care for every animal</h3>
+                    <p>Keep herd records, health history, and withdrawal status close at hand.</p>
+                </div>
+            </article>
+            <article class="feature-card">
+                <div class="feature-art" aria-hidden="true"><i class="fa-solid fa-seedling"></i></div>
+                <div>
+                    <h3>Know what is in use</h3>
+                    <p>Track antimicrobial treatments and medicine inventory with confidence.</p>
+                </div>
+            </article>
+            <article class="feature-card">
+                <div class="feature-art" aria-hidden="true"><i class="fa-solid fa-flask"></i></div>
+                <div>
+                    <h3>Harvest with clarity</h3>
+                    <p>Monitor residue tests and limits, and know when products are ready.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <footer class="landing-footer" id="contact">
+        <h2>Better care.<br />Greener growth.</h2>
+        <nav class="footer-links" aria-label="Explore">
+            <strong>Explore</strong>
+            <a asp-controller="Account" asp-action="Register">Create an account</a>
+            <a asp-controller="Account" asp-action="Login">Open your farm portal</a>
+            <a href="#features">What you can manage</a>
+        </nav>
+        <div class="footer-links">
+            <strong>Supergreen</strong>
+            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <a asp-controller="Account" asp-action="Register">Join Supergreen</a>
+        </div>
+        <div class="footer-bottom">
+            <span>© @DateTime.Now.Year Supergreen. Made for better farm management.</span>
+            <span>Care · Clarity · Growth</span>
+        </div>
+    </footer>
+</div>

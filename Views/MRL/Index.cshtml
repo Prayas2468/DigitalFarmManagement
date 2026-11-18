@@ -1,0 +1,76 @@
+@model MrlIndexViewModel
+@{
+    ViewData["Title"] = "MRL monitoring";
+}
+<div class="page-head">
+    <div>
+        <h1>Maximum residue limits</h1>
+        <p>@Model.Compliant compliant · @Model.NonCompliant over the limit · @Model.Pending pending</p>
+    </div>
+    <div class="d-flex gap-2">
+        @if (User.IsInRole(AppRoles.Admin))
+        {
+            <a class="btn btn-light" asp-action="Standards">Configure limits</a>
+        }
+        <a class="btn btn-forest" asp-action="Create">Add test</a>
+    </div>
+</div>
+<form method="get" class="filter-bar">
+    <select class="form-select" name="productType">
+        <option value="">All products</option>
+        @foreach (var product in ProductTypes.All)
+        {
+            if (product == Model.ProductType) { <option value="@product" selected>@product</option> }
+            else { <option value="@product">@product</option> }
+        }
+    </select>
+    <select class="form-select" name="ingredient">
+        <option value="">All ingredients</option>
+        @foreach (var ingredient in Model.Ingredients)
+        {
+            if (ingredient == Model.Ingredient) { <option value="@ingredient" selected>@ingredient</option> }
+            else { <option value="@ingredient">@ingredient</option> }
+        }
+    </select>
+    <select class="form-select" name="result">
+        <option value="">All results</option>
+        @foreach (var result in MrlResults.All)
+        {
+            if (result == Model.Result) { <option value="@result" selected>@result</option> }
+            else { <option value="@result">@result</option> }
+        }
+    </select>
+    <input class="form-control" type="date" name="from" value="@Model.From?.ToString("yyyy-MM-dd")" />
+    <input class="form-control" type="date" name="to" value="@Model.To?.ToString("yyyy-MM-dd")" />
+    <button class="btn btn-outline-secondary" type="submit">Filter</button>
+</form>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>Date</th><th>Animal</th><th>Product</th><th>Ingredient</th><th>Measured</th><th>Limit</th><th>Result</th><th></th></tr></thead>
+            <tbody>
+            @if (Model.Items.Count == 0) { <tr><td colspan="8"><div class="empty">No tests match these filters.</div></td></tr> }
+            @foreach (var row in Model.Items)
+            {
+                <tr>
+                    <td>@Ui.When(row.TestDate)</td>
+                    <td>@row.Livestock.AnimalCode</td>
+                    <td>@row.ProductType</td>
+                    <td>@row.ActiveIngredient</td>
+                    <td>@Ui.Measure(row.MeasuredResidueLevel) @row.Unit</td>
+                    <td>@Ui.Measure(row.ApplicableMrlLimit) @row.LimitUnit</td>
+                    <td><span class="@Ui.Pill(row.TestResult)">@row.TestResult</span></td>
+                    <td class="text-nowrap">
+                        <a class="btn btn-sm btn-light" asp-action="Details" asp-route-id="@row.Id">View</a>
+                        <a class="btn btn-sm btn-light" asp-action="Edit" asp-route-id="@row.Id">Edit</a>
+                        <form class="d-inline" asp-action="Delete" asp-route-id="@row.Id" method="post" data-confirm="Delete this residue test?">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pager" model="Model.Pager" />
+</div>

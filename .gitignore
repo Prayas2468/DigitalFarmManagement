@@ -1,0 +1,17 @@
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+.vscode/
+
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+*.pfx
+*.pem
+
+*.db
+*.db-shm
+*.db-wal

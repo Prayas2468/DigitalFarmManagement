@@ -1,0 +1,69 @@
+@model LivestockDetailsViewModel
+@{
+    ViewData["Title"] = Model.Animal.AnimalCode;
+    var animal = Model.Animal;
+}
+<div class="page-head">
+    <div>
+        <h1>@animal.AnimalCode · @animal.AnimalName</h1>
+        <p>@animal.Species · @animal.Breed · @animal.Gender · @animal.Farm.FarmName</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-light" asp-action="Edit" asp-route-id="@animal.Id">Edit</a>
+        <a class="btn btn-forest" asp-controller="Treatment" asp-action="Create" asp-route-animalId="@animal.Id">Record treatment</a>
+        <a class="btn btn-outline-secondary" asp-controller="MRL" asp-action="Create" asp-route-animalId="@animal.Id">Add residue test</a>
+    </div>
+</div>
+<div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
+    <article class="stat-card"><div class="stat-label">Weight</div><div class="stat-value">@Ui.Qty(animal.Weight)</div><div class="stat-note">kg</div></article>
+    <article class="stat-card"><div class="stat-label">Born</div><div class="stat-value" style="font-size:1.2rem">@Ui.When(animal.DateOfBirth)</div></article>
+    <article class="stat-card"><div class="stat-label">Health</div><div class="stat-value" style="font-size:1.2rem"><span class="@Ui.Pill(animal.HealthStatus)">@animal.HealthStatus</span></div></article>
+    <article class="stat-card"><div class="stat-label">Registered</div><div class="stat-value" style="font-size:1.2rem">@Ui.When(animal.RegistrationDate)</div></article>
+</div>
+<section class="panel mb-3">
+    <div class="panel-head"><h2>Treatment history</h2></div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>Medicine</th><th>Dose</th><th>Route</th><th>Start</th><th>End</th><th>Eligible</th></tr></thead>
+            <tbody>
+            @if (Model.Treatments.Count == 0) { <tr><td colspan="6"><div class="empty">No treatments yet.</div></td></tr> }
+            @foreach (var row in Model.Treatments)
+            {
+                <tr>
+                    <td><a asp-controller="Treatment" asp-action="Details" asp-route-id="@row.Id">@row.MedicineName</a><div class="small text-muted">@row.ReasonForTreatment</div></td>
+                    <td>@Ui.Qty(row.Dosage) @row.Unit</td>
+                    <td>@row.AdministrationRoute</td>
+                    <td>@Ui.When(row.TreatmentStartDate)</td>
+                    <td>@Ui.When(row.TreatmentEndDate)</td>
+                    <td>@Ui.When(row.WithdrawalEndDate)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>
+<div class="split">
+    <section class="panel">
+        <h2>Residue tests</h2>
+        @foreach (var test in Model.Tests)
+        {
+            <div class="mini-alert mb-2">
+                <span class="@Ui.Pill(test.TestResult)">@test.TestResult</span>
+                <div>@test.ProductType · @test.ActiveIngredient · @Ui.Measure(test.MeasuredResidueLevel) @test.Unit on @Ui.When(test.TestDate)</div>
+            </div>
+        }
+        @if (Model.Tests.Count == 0) { <div class="empty">No residue tests yet.</div> }
+    </section>
+    <section class="panel">
+        <h2>Withdrawal periods</h2>
+        @foreach (var row in Model.Withdrawals)
+        {
+            var status = WithdrawalMath.Status(row.ExpectedCompletionDate, DateTime.Today);
+            <div class="mini-alert mb-2">
+                <span class="@Ui.Pill(status)">@status</span>
+                <div>Eligible @Ui.When(row.ExpectedCompletionDate) · @row.AffectedProducts</div>
+            </div>
+        }
+        @if (Model.Withdrawals.Count == 0) { <div class="empty">No withdrawal periods yet.</div> }
+    </section>
+</div>

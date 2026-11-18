@@ -1,0 +1,19 @@
+@model PagerViewModel
+@if (Model.TotalCount > 0)
+{
+    var start = ((Model.Page - 1) * 8) + 1;
+    var end = Math.Min(Model.Page * 8, Model.TotalCount);
+    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+        <span class="text-muted small">Showing @start–@end of @Model.TotalCount</span>
+        @if (Model.TotalPages > 1)
+        {
+            var prevRoutes = new Dictionary<string, string>(Model.Routes) { ["page"] = Math.Max(1, Model.Page - 1).ToString() };
+            var nextRoutes = new Dictionary<string, string>(Model.Routes) { ["page"] = Math.Min(Model.TotalPages, Model.Page + 1).ToString() };
+            <div class="btn-group">
+                <a class="btn btn-outline-secondary btn-sm @(Model.Page <= 1 ? "disabled" : "")" asp-controller="@Model.Controller" asp-action="@Model.Action" asp-all-route-data="prevRoutes">Previous</a>
+                <span class="btn btn-outline-secondary btn-sm disabled">@Model.Page / @Model.TotalPages</span>
+                <a class="btn btn-outline-secondary btn-sm @(Model.Page >= Model.TotalPages ? "disabled" : "")" asp-controller="@Model.Controller" asp-action="@Model.Action" asp-all-route-data="nextRoutes">Next</a>
+            </div>
+        }
+    </div>
+}

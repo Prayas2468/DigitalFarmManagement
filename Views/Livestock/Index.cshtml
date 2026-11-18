@@ -1,0 +1,64 @@
+@model LivestockIndexViewModel
+@{
+    ViewData["Title"] = "Livestock";
+}
+<div class="page-head">
+    <div>
+        <h1>Livestock management</h1>
+        <p>Cattle, buffalo, goats, sheep, pigs, and poultry.</p>
+    </div>
+    <a class="btn btn-forest" asp-action="Create">Add livestock</a>
+</div>
+<form method="get" class="filter-bar">
+    <input class="form-control" name="search" value="@Model.Search" placeholder="Animal ID, name, or breed" />
+    <select class="form-select" name="species">
+        <option value="">All species</option>
+        @foreach (var species in SpeciesList.All)
+        {
+            <option value="@species" selected="@(species == Model.Species)">@species</option>
+        }
+    </select>
+    <select class="form-select" name="healthStatus">
+        <option value="">All health statuses</option>
+        @foreach (var status in HealthStatuses.All)
+        {
+            <option value="@status" selected="@(status == Model.HealthStatus)">@status</option>
+        }
+    </select>
+    <select class="form-select" name="sort">
+        <option value="code">Sort by animal ID</option>
+        <option value="name" selected="@(Model.Sort == "name")">Sort by name</option>
+        <option value="species" selected="@(Model.Sort == "species")">Sort by species</option>
+        <option value="status" selected="@(Model.Sort == "status")">Sort by health</option>
+    </select>
+    <button class="btn btn-outline-secondary" type="submit">Apply</button>
+</form>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>Animal ID</th><th>Name</th><th>Species</th><th>Weight</th><th>Health</th><th>Farm</th><th>Hold</th><th></th></tr></thead>
+            <tbody>
+            @if (Model.Items.Count == 0) { <tr><td colspan="8"><div class="empty">No animals match these filters.</div></td></tr> }
+            @foreach (var animal in Model.Items)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@animal.Id"><strong>@animal.AnimalCode</strong></a></td>
+                    <td>@animal.AnimalName<div class="small text-muted">@animal.Breed · @animal.Gender</div></td>
+                    <td>@animal.Species</td>
+                    <td>@Ui.Qty(animal.Weight) kg</td>
+                    <td><span class="@Ui.Pill(animal.HealthStatus)">@animal.HealthStatus</span></td>
+                    <td>@animal.FarmName</td>
+                    <td>@(animal.UnderWithdrawal ? "In withdrawal" : "Clear")</td>
+                    <td class="text-nowrap">
+                        <a class="btn btn-sm btn-light" asp-action="Edit" asp-route-id="@animal.Id">Edit</a>
+                        <form class="d-inline" asp-action="Delete" asp-route-id="@animal.Id" method="post" data-confirm="Delete @animal.AnimalCode?">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pager" model="Model.Pager" />
+</div>

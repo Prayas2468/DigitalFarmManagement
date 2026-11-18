@@ -1,0 +1,75 @@
+@model MrlTestFormViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Add residue test" : "Edit residue test";
+}
+<div class="page-head">
+    <div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Limits come from the @Model.Country table. The result is calculated on the server, after the units are converted to the same scale.</p>
+    </div>
+</div>
+<form asp-action="@(Model.Id == 0 ? "Create" : "Edit")" method="post" class="panel">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="LivestockId" class="form-label"></label>
+            <select asp-for="LivestockId" class="form-select" id="animalPick">
+                <option value="">Choose</option>
+                @foreach (var animal in Model.Animals) { <option value="@animal.Id">@animal.Label</option> }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="ProductType" class="form-label"></label>
+            <select asp-for="ProductType" class="form-select" id="productPick"><option value="">Choose</option>@foreach (var product in ProductTypes.All) { <option>@product</option> }</select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="ActiveIngredient" class="form-label"></label>
+            <input asp-for="ActiveIngredient" class="form-control" list="ingredients" id="ingredientPick" />
+            <datalist id="ingredients">@foreach (var name in Model.Ingredients) { <option value="@name"></option> }</datalist>
+        </div>
+        <div class="col-md-3"><label asp-for="MeasuredResidueLevel" class="form-label"></label><input asp-for="MeasuredResidueLevel" class="form-control" /></div>
+        <div class="col-md-3">
+            <label asp-for="Unit" class="form-label"></label>
+            <select asp-for="Unit" class="form-select">@foreach (var unit in MrlUnits.All) { <option>@unit</option> }</select>
+        </div>
+        <div class="col-md-3"><label asp-for="TestDate" class="form-label"></label><input asp-for="TestDate" class="form-control" type="date" /></div>
+        <div class="col-md-3"><label asp-for="LaboratoryName" class="form-label"></label><input asp-for="LaboratoryName" class="form-control" /></div>
+        <div class="col-md-9"><label asp-for="Remarks" class="form-label"></label><input asp-for="Remarks" class="form-control" /></div>
+        <div class="col-md-3 d-flex align-items-end">
+            <div class="form-check mb-2">
+                <input asp-for="HoldAsPending" class="form-check-input" />
+                <label asp-for="HoldAsPending" class="form-check-label"></label>
+            </div>
+        </div>
+    </div>
+    <div id="limitHint" class="alert alert-light border mt-3 mb-0">Choose a product and ingredient to preview the stored limit.</div>
+    <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-forest" type="submit">Save test</button>
+        <a class="btn btn-light" asp-action="Index">Cancel</a>
+    </div>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const standards = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Standards, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        const animals = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Animals, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        const hint = document.getElementById("limitHint");
+        const show = () => {
+            const animal = animals.find(a => String(a.id) === document.getElementById("animalPick").value);
+            const species = animal ? (animal.label.match(/\(([^)]+)\)/) || [])[1] : "";
+            const product = document.getElementById("productPick").value;
+            const ingredient = document.getElementById("ingredientPick").value.trim();
+            const specific = standards.find(s => s.productType === product && s.activeIngredient === ingredient && s.species === species);
+            const general = standards.find(s => s.productType === product && s.activeIngredient === ingredient && !s.species);
+            const match = specific || general;
+            hint.textContent = match
+                ? `Stored limit: ${match.limitValue} ${match.unit} (${match.regulatorySource}). The server still makes the official comparison.`
+                : "No stored limit matches this product and ingredient yet. The test will be saved as pending.";
+        };
+        ["animalPick", "productPick", "ingredientPick"].forEach(id => document.getElementById(id).addEventListener("input", show));
+        document.getElementById("animalPick").addEventListener("change", show);
+        document.getElementById("productPick").addEventListener("change", show);
+        show();
+    </script>
+}

@@ -1,0 +1,110 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<div class="page-head">
+    <div>
+        <h1>Good day, @Model.DisplayName</h1>
+        <p>@(Model.IsAdmin ? "You are seeing every farm in the portal." : "You are seeing the farms linked to your account.")</p>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <article class="stat-card"><span class="stat-icon"><i class="fa-solid fa-tractor"></i></span><div class="stat-label">Farms</div><div class="stat-value">@Model.TotalFarms</div></article>
+    <article class="stat-card"><span class="stat-icon"><i class="fa-solid fa-cow"></i></span><div class="stat-label">Livestock</div><div class="stat-value">@Model.TotalLivestock</div></article>
+    <article class="stat-card"><span class="stat-icon"><i class="fa-solid fa-syringe"></i></span><div class="stat-label">Treatments</div><div class="stat-value">@Model.TotalTreatments</div><div class="stat-note">@Model.TreatmentsThisMonth this month</div></article>
+    <article class="stat-card"><span class="stat-icon"><i class="fa-solid fa-hourglass-half"></i></span><div class="stat-label">In withdrawal</div><div class="stat-value">@Model.AnimalsUnderWithdrawal</div></article>
+    <article class="stat-card"><span class="stat-icon"><i class="fa-solid fa-flask"></i></span><div class="stat-label">MRL compliance</div><div class="stat-value">@Model.ComplianceRate%</div><div class="stat-note">Decided tests only</div></article>
+    <article class="stat-card"><span class="stat-icon"><i class="fa-solid fa-pills"></i></span><div class="stat-label">Active medicines</div><div class="stat-value">@Model.ActiveMedicines</div></article>
+</div>
+
+<div class="chart-grid">
+    <section class="panel">
+        <div class="panel-head"><h2>Livestock by species</h2></div>
+        <div class="chart-box"><canvas data-chart="bar" data-labels='@System.Text.Json.JsonSerializer.Serialize(Model.SpeciesLabels)' data-values='@System.Text.Json.JsonSerializer.Serialize(Model.SpeciesCounts)'></canvas></div>
+    </section>
+    <section class="panel">
+        <div class="panel-head"><h2>Treatments by month</h2></div>
+        <div class="chart-box"><canvas data-chart="bar" data-labels='@System.Text.Json.JsonSerializer.Serialize(Model.MonthLabels)' data-values='@System.Text.Json.JsonSerializer.Serialize(Model.MonthlyTreatmentCounts)'></canvas></div>
+    </section>
+    <section class="panel">
+        <div class="panel-head"><h2>MRL results</h2></div>
+        <div class="chart-box"><canvas data-chart="pie" data-labels='@System.Text.Json.JsonSerializer.Serialize(new[] { "Compliant", "Non-compliant", "Pending" })' data-values='@System.Text.Json.JsonSerializer.Serialize(new[] { Model.CompliantCount, Model.NonCompliantCount, Model.PendingCount })'></canvas></div>
+    </section>
+</div>
+
+<div class="split">
+    <section class="panel">
+        <div class="panel-head"><h2>Withdrawal ending within 3 days</h2><a asp-controller="Withdrawal" asp-action="Index">Open</a></div>
+        @if (Model.WithdrawalAlerts.Count == 0)
+        {
+            <div class="empty">No animal is within three days of clearance.</div>
+        }
+        <div class="alert-stack mb-3">
+            @foreach (var alert in Model.WithdrawalAlerts)
+            {
+                <a class="mini-alert warning text-decoration-none text-dark" asp-controller="Withdrawal" asp-action="Details" asp-route-id="@alert.LivestockId">
+                    <strong>@alert.AnimalCode · @alert.AnimalName</strong>
+                    <div>@alert.MedicineName ends its hold on @Ui.When(alert.EligibleOn) (@alert.RemainingDays day(s) left).</div>
+                </a>
+            }
+        </div>
+    </section>
+    <section class="panel">
+        <div class="panel-head"><h2>MRL violations</h2><a asp-controller="MRL" asp-action="Index" asp-route-result="Non-Compliant">Open</a></div>
+        @if (Model.Violations.Count == 0)
+        {
+            <div class="empty">No residue result is over its limit.</div>
+        }
+        <div class="alert-stack mb-3">
+            @foreach (var test in Model.Violations)
+            {
+                <a class="mini-alert danger text-decoration-none text-dark" asp-controller="MRL" asp-action="Details" asp-route-id="@test.Id">
+                    <strong>@test.AnimalCode · @test.ProductType</strong>
+                    <div>@test.ActiveIngredient measured @Ui.Measure(test.Measured) @test.Unit against @Ui.Measure(test.Limit) @test.LimitUnit.</div>
+                </a>
+            }
+        </div>
+    </section>
+</div>
+
+<div class="split mt-3">
+    <section class="panel">
+        <div class="panel-head"><h2>Recent treatments</h2><a asp-controller="Treatment" asp-action="Index">History</a></div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead><tr><th>Animal</th><th>Medicine</th><th>Farm</th><th>Started</th></tr></thead>
+                <tbody>
+                @foreach (var row in Model.RecentTreatments)
+                {
+                    <tr>
+                        <td><a asp-controller="Treatment" asp-action="Details" asp-route-id="@row.Id">@row.AnimalCode</a><div class="small text-muted">@row.AnimalName</div></td>
+                        <td>@row.MedicineName</td>
+                        <td>@row.FarmName</td>
+                        <td>@Ui.When(row.Start)</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section class="panel">
+        <div class="panel-head"><h2>Recent residue tests</h2></div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead><tr><th>Animal</th><th>Product</th><th>Result</th><th>Date</th></tr></thead>
+                <tbody>
+                @foreach (var row in Model.RecentTests)
+                {
+                    <tr>
+                        <td><a asp-controller="MRL" asp-action="Details" asp-route-id="@row.Id">@row.AnimalCode</a></td>
+                        <td>@row.ProductType<div class="small text-muted">@row.ActiveIngredient</div></td>
+                        <td><span class="@Ui.Pill(row.Result)">@row.Result</span></td>
+                        <td>@Ui.When(row.TestDate)</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

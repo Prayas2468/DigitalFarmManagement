@@ -1,0 +1,62 @@
+@model ReportTableViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+<div class="page-head">
+    <div>
+        <h1>@Model.Title</h1>
+        <p>@Model.Description</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-light" asp-action="Csv" asp-route-key="@Model.ReportKey" asp-route-from="@Model.From?.ToString("yyyy-MM-dd")" asp-route-to="@Model.To?.ToString("yyyy-MM-dd")" asp-route-search="@Model.Search">CSV</a>
+        <a class="btn btn-light" asp-action="Pdf" asp-route-key="@Model.ReportKey" asp-route-from="@Model.From?.ToString("yyyy-MM-dd")" asp-route-to="@Model.To?.ToString("yyyy-MM-dd")" asp-route-search="@Model.Search">PDF</a>
+        <button class="btn btn-forest" type="button" onclick="window.print()">Print</button>
+        <a class="btn btn-light" asp-action="Index">All reports</a>
+    </div>
+</div>
+<form method="get" asp-action="ViewReport" class="filter-bar">
+    <input type="hidden" name="key" value="@Model.ReportKey" />
+    <input class="form-control" type="date" name="from" value="@Model.From?.ToString("yyyy-MM-dd")" />
+    <input class="form-control" type="date" name="to" value="@Model.To?.ToString("yyyy-MM-dd")" />
+    <input class="form-control" name="search" value="@Model.Search" placeholder="Search text in the report" />
+    <button class="btn btn-outline-secondary" type="submit">Apply</button>
+</form>
+@if (Model.ChartType != "none" && Model.ChartLabels.Count > 0)
+{
+    <section class="panel mb-3">
+        <div class="panel-head"><h2>Chart</h2></div>
+        <div class="chart-box">
+            <canvas data-chart="@Model.ChartType" data-labels='@System.Text.Json.JsonSerializer.Serialize(Model.ChartLabels)' data-values='@System.Text.Json.JsonSerializer.Serialize(Model.ChartValues)'></canvas>
+        </div>
+    </section>
+}
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    @foreach (var header in Model.Headers)
+                    {
+                        <th>@header</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Rows.Count == 0)
+            {
+                <tr><td colspan="@Model.Headers.Count"><div class="empty">Nothing matched this range.</div></td></tr>
+            }
+            @foreach (var row in Model.Rows)
+            {
+                <tr>
+                    @foreach (var cell in row)
+                    {
+                        <td>@cell</td>
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <p class="text-muted small mb-0 mt-2">@Model.Rows.Count row(s)</p>
+</div>

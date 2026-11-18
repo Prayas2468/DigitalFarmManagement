@@ -1,0 +1,32 @@
+@model MRLTest
+@{
+    ViewData["Title"] = "Residue test";
+}
+<div class="page-head">
+    <div>
+        <h1>Residue test</h1>
+        <p>@Model.Livestock.AnimalCode · @Model.Livestock.AnimalName · @Model.Livestock.Farm.FarmName</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-light" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+        <a class="btn btn-light" asp-action="Index">Back</a>
+    </div>
+</div>
+<div class="panel">
+    <p><span class="@Ui.Pill(Model.TestResult)">@Model.TestResult</span></p>
+    <div class="row g-3">
+        <div class="col-md-4"><div class="text-muted small">Product</div><strong>@Model.ProductType</strong></div>
+        <div class="col-md-4"><div class="text-muted small">Active ingredient</div><strong>@Model.ActiveIngredient</strong></div>
+        <div class="col-md-4"><div class="text-muted small">Test date</div><strong>@Ui.When(Model.TestDate)</strong></div>
+        <div class="col-md-4"><div class="text-muted small">Measured</div><strong>@Ui.Measure(Model.MeasuredResidueLevel) @Model.Unit</strong></div>
+        <div class="col-md-4"><div class="text-muted small">Applicable limit</div><strong>@Ui.Measure(Model.ApplicableMrlLimit) @Model.LimitUnit</strong></div>
+        <div class="col-md-4"><div class="text-muted small">Laboratory</div><strong>@Model.LaboratoryName</strong></div>
+        <div class="col-md-6"><div class="text-muted small">Regulatory source</div><strong>@(Model.Standard?.RegulatorySource ?? "Limit copied onto this test")</strong></div>
+        <div class="col-md-6"><div class="text-muted small">Country on the standard</div><strong>@(Model.Standard?.Country ?? "—")</strong></div>
+        <div class="col-12"><div class="text-muted small">Remarks</div><strong>@(string.IsNullOrWhiteSpace(Model.Remarks) ? "None" : Model.Remarks)</strong></div>
+    </div>
+    <p class="text-muted small mt-3 mb-0">The comparison converts µg/kg and mg/kg onto the same scale before deciding compliant or non-compliant. A missing standard is stored as pending.</p>
+</div>
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="mt-3" data-confirm="Delete this residue test?">
+    <button class="btn btn-outline-danger" type="submit">Delete test</button>
+</form>

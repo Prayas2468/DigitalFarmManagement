@@ -1,0 +1,60 @@
+@model WithdrawalIndexViewModel
+@{
+    ViewData["Title"] = "Withdrawal periods";
+}
+<div class="page-head">
+    <div>
+        <h1>Withdrawal periods</h1>
+        <p>@Model.Active active · @Model.EndingSoon ending within 3 days · @Model.Completed completed</p>
+    </div>
+</div>
+<form method="get" class="filter-bar">
+    <input class="form-control" name="search" value="@Model.Search" placeholder="Search animal or medicine" />
+    <select class="form-select" name="status">
+        <option value="">All statuses</option>
+        @foreach (var status in new[] { WithdrawalStatuses.Active, WithdrawalStatuses.EndingSoon, WithdrawalStatuses.Completed })
+        {
+            if (status == Model.Status) { <option value="@status" selected>@status</option> }
+            else { <option value="@status">@status</option> }
+        }
+    </select>
+    <button class="btn btn-outline-secondary" type="submit">Apply</button>
+</form>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Animal</th>
+                    <th>Medicine</th>
+                    <th>Products held</th>
+                    <th>Treatment ended</th>
+                    <th>Eligible on</th>
+                    <th>Days left</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Items.Count == 0)
+            {
+                <tr><td colspan="8"><div class="empty">No withdrawal records match these filters.</div></td></tr>
+            }
+            @foreach (var row in Model.Items)
+            {
+                <tr>
+                    <td><strong>@row.AnimalCode</strong><div class="small text-muted">@row.AnimalName · @row.Species</div></td>
+                    <td>@row.MedicineName</td>
+                    <td>@row.AffectedProducts</td>
+                    <td>@Ui.When(row.TreatmentEnd)</td>
+                    <td>@Ui.When(row.EligibleOn)</td>
+                    <td>@(row.RemainingDays < 0 ? 0 : row.RemainingDays)</td>
+                    <td><span class="@Ui.Pill(row.Status)">@row.Status</span></td>
+                    <td><a class="btn btn-sm btn-light" asp-action="Details" asp-route-id="@row.LivestockId">Open animal</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pager" model="Model.Pager" />
+</div>

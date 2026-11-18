@@ -1,0 +1,28 @@
+@model NavAlertsViewModel
+<div class="dropdown">
+    <button class="icon-btn" data-bs-toggle="dropdown" aria-label="Notifications">
+        <i class="fa-regular fa-bell"></i>
+        @if (Model.Unread > 0)
+        {
+            <span class="badge-dot">@Model.Unread</span>
+        }
+    </button>
+    <div class="dropdown-menu dropdown-menu-end notify-menu">
+        <div class="d-flex justify-content-between align-items-center px-2 py-1">
+            <strong>Alerts</strong>
+            <a asp-controller="Notification" asp-action="Index">View all</a>
+        </div>
+        @if (Model.Latest.Count == 0)
+        {
+            <div class="text-muted small px-2 py-3">No alerts right now.</div>
+        }
+        @foreach (var note in Model.Latest)
+        {
+            <a class="notify-item" asp-controller="Notification" asp-action="Open" asp-route-id="@note.Id">
+                <strong class="d-block">@note.Title</strong>
+                <span class="small">@note.Message</span>
+                <small class="d-block">@Ui.Ago(note.CreatedAt)</small>
+            </a>
+        }
+    </div>
+</div>

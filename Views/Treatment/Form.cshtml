@@ -1,0 +1,64 @@
+@model TreatmentFormViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Record treatment" : "Edit treatment";
+}
+<div class="page-head">
+    <div>
+        <h1>@ViewData["Title"]</h1>
+        <p>The withdrawal end date is the treatment end date plus the medicine's withdrawal days. Saving also changes the batch quantity.</p>
+    </div>
+</div>
+<form asp-action="@(Model.Id == 0 ? "Create" : "Edit")" method="post" class="panel">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="LivestockId" class="form-label"></label>
+            <select asp-for="LivestockId" class="form-select">
+                <option value="">Choose an animal</option>
+                @foreach (var animal in Model.Animals) { <option value="@animal.Id">@animal.Label</option> }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="MedicineInventoryId" class="form-label"></label>
+            <select asp-for="MedicineInventoryId" class="form-select" id="batchPick">
+                <option value="">Choose a batch</option>
+                @foreach (var batch in Model.Batches)
+                {
+                    <option value="@batch.Id">@batch.Label @(batch.Expired ? "(expired)" : "")</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3"><label asp-for="Dosage" class="form-label"></label><input asp-for="Dosage" class="form-control" /></div>
+        <div class="col-md-3">
+            <label asp-for="AdministrationRoute" class="form-label"></label>
+            <select asp-for="AdministrationRoute" class="form-select"><option value="">Choose</option>@foreach (var route in AdminRoutes.All) { <option>@route</option> }</select>
+        </div>
+        <div class="col-md-3"><label asp-for="TreatmentStartDate" class="form-label"></label><input asp-for="TreatmentStartDate" class="form-control" type="date" /></div>
+        <div class="col-md-3"><label asp-for="TreatmentEndDate" class="form-label"></label><input asp-for="TreatmentEndDate" class="form-control" type="date" /></div>
+        <div class="col-md-6"><label asp-for="VeterinarianName" class="form-label"></label><input asp-for="VeterinarianName" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="ReasonForTreatment" class="form-label"></label><input asp-for="ReasonForTreatment" class="form-control" /></div>
+        <div class="col-12"><label asp-for="Remarks" class="form-label"></label><textarea asp-for="Remarks" class="form-control" rows="2"></textarea></div>
+    </div>
+    <div id="batchHint" class="alert alert-light border mt-3 mb-0"></div>
+    <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-forest" type="submit">Save treatment</button>
+        <a class="btn btn-light" asp-action="Index">Cancel</a>
+    </div>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const batches = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Batches));
+        const pick = document.getElementById("batchPick");
+        const hint = document.getElementById("batchHint");
+        const show = () => {
+            const batch = batches.find(b => String(b.id) === pick.value);
+            hint.textContent = batch
+                ? `${batch.medicineName} · ${batch.activeIngredient} · ${batch.category}. Withdrawal period ${batch.withdrawalDays} days. Stock ${batch.stock} ${batch.unit}.`
+                : "Choose a batch to see its ingredient and withdrawal period.";
+        };
+        pick.addEventListener("change", show);
+        show();
+    </script>
+}

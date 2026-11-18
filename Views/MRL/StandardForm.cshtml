@@ -1,0 +1,58 @@
+@model MrlStandardFormViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Add MRL limit" : "Edit MRL limit";
+}
+<div class="page-head">
+    <div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Leave species blank when the same limit applies to every species. A species-specific row overrides the general one for that animal.</p>
+    </div>
+</div>
+<form asp-action="@(Model.Id == 0 ? "CreateStandard" : "EditStandard")" method="post" class="panel">
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="Country" class="form-label"></label>
+            <input asp-for="Country" class="form-control" />
+            <span asp-validation-for="Country" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ProductType" class="form-label"></label>
+            <select asp-for="ProductType" class="form-select">
+                <option value="">Choose</option>
+                @foreach (var product in ProductTypes.All) { <option value="@product">@product</option> }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ActiveIngredient" class="form-label"></label>
+            <input asp-for="ActiveIngredient" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Species" class="form-label"></label>
+            <select asp-for="Species" class="form-select">
+                <option value="">All species</option>
+                @foreach (var species in SpeciesList.All) { <option value="@species">@species</option> }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="LimitValue" class="form-label"></label>
+            <input asp-for="LimitValue" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Unit" class="form-label"></label>
+            <select asp-for="Unit" class="form-select">
+                @foreach (var unit in MrlUnits.All) { <option value="@unit">@unit</option> }
+            </select>
+        </div>
+        <div class="col-12">
+            <label asp-for="RegulatorySource" class="form-label"></label>
+            <input asp-for="RegulatorySource" class="form-control" placeholder="For example: FSSAI / Codex" />
+        </div>
+    </div>
+    <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-forest" type="submit">Save limit</button>
+        <a class="btn btn-light" asp-action="Standards">Cancel</a>
+    </div>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

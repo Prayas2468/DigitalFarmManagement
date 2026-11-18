@@ -1,0 +1,53 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+}
+<div class="page-head">
+    <div>
+        <h1>Your profile</h1>
+        <p>Signed in as @Model.Role. Email is the login name and stays fixed.</p>
+    </div>
+</div>
+<form asp-action="Index" method="post" class="panel" style="max-width:720px">
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Email</label>
+            <input class="form-control" value="@Model.Email" disabled />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="PhoneNumber" class="form-label"></label>
+            <input asp-for="PhoneNumber" class="form-control" />
+            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Role</label>
+            <input class="form-control" value="@Model.Role" disabled />
+        </div>
+    </div>
+    <h2 class="h6 mt-4">Change password</h2>
+    <p class="text-muted small">Leave these blank if you only want to update your name or phone.</p>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="CurrentPassword" class="form-label"></label>
+            <input asp-for="CurrentPassword" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="NewPassword" class="form-label"></label>
+            <input asp-for="NewPassword" class="form-control" />
+            <span asp-validation-for="NewPassword" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ConfirmPassword" class="form-label"></label>
+            <input asp-for="ConfirmPassword" class="form-control" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+        </div>
+    </div>
+    <button class="btn btn-forest mt-3" type="submit">Save profile</button>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

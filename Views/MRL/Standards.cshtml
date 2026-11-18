@@ -1,0 +1,54 @@
+@model List<MRLStandard>
+@{
+    ViewData["Title"] = "MRL limits";
+}
+<div class="page-head">
+    <div>
+        <h1>Configured MRL limits</h1>
+        <p>Administrators set the country, product, ingredient, and source. Tests look up a matching row instead of a number written in code.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-light" asp-action="Index">Back to tests</a>
+        <a class="btn btn-forest" asp-action="CreateStandard">Add limit</a>
+    </div>
+</div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Country</th>
+                    <th>Product</th>
+                    <th>Ingredient</th>
+                    <th>Species</th>
+                    <th>Limit</th>
+                    <th>Source</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="7"><div class="empty">No limits have been saved yet.</div></td></tr>
+            }
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td>@row.Country</td>
+                    <td>@row.ProductType</td>
+                    <td>@row.ActiveIngredient</td>
+                    <td>@(string.IsNullOrWhiteSpace(row.Species) ? "All species" : row.Species)</td>
+                    <td>@Ui.Measure(row.LimitValue) @row.Unit</td>
+                    <td>@row.RegulatorySource</td>
+                    <td class="text-nowrap">
+                        <a class="btn btn-sm btn-light" asp-action="EditStandard" asp-route-id="@row.Id">Edit</a>
+                        <form class="d-inline" asp-action="DeleteStandard" asp-route-id="@row.Id" method="post" data-confirm="Remove this limit? Older tests keep the value already copied onto them.">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

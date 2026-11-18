@@ -1,0 +1,21 @@
+@model IReadOnlyList<ReportHubItem>
+@{
+    ViewData["Title"] = "Reports";
+}
+<div class="page-head">
+    <div>
+        <h1>Reports and analytics</h1>
+        <p>Every report reads the farms you are allowed to see. Dates, search, charts, CSV, PDF, and print are on the report page.</p>
+    </div>
+</div>
+<div class="stat-grid">
+    @foreach (var report in Model)
+    {
+        <a class="stat-card text-decoration-none text-dark" asp-action="ViewReport" asp-route-key="@report.Key">
+            <span class="stat-icon"><i class="fa-solid @report.Icon"></i></span>
+            <div class="stat-label">Report</div>
+            <div class="h5 mb-1">@report.Title</div>
+            <div class="stat-note">@report.Description</div>
+        </a>
+    }
+</div>
